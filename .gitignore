@@ -1,0 +1,52 @@
+# Environment Configuration
+.env
+.env.local
+.env.production
+
+# Logs
+logs/
+*.log
+
+# Uploaded Files
+uploads/
+public/uploads/
+
+# Composer
+vendor/
+composer.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Backup Files
+*.bak
+*.old
+*.backup
+*.tmp
+
+# Database
+*.sql
+*.sqlite
+*.db
+
+# Cache
+cache/
+tmp/
+temp/
+
+# Node modules (if using npm)
+node_modules/
+package-lock.json
+
+# Build files
+dist/
+build/
