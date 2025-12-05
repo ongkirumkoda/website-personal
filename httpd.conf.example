@@ -1,0 +1,136 @@
+# ============================================
+# Apache httpd.conf Configuration for SIRAGA
+# ============================================
+# 
+# File ini adalah CONTOH konfigurasi yang perlu ditambahkan
+# ke file httpd.conf Apache Anda
+#
+# Lokasi httpd.conf:
+# - XAMPP Windows: C:\xampp\apache\conf\httpd.conf
+# - WAMP Windows: C:\wamp\bin\apache\apache2.x.x\conf\httpd.conf
+# - Linux: /etc/apache2/apache2.conf atau /etc/httpd/conf/httpd.conf
+#
+
+# ============================================
+# 1. AKTIFKAN mod_rewrite
+# ============================================
+# Cari baris ini di httpd.conf dan HAPUS tanda # di depannya:
+
+LoadModule rewrite_module modules/mod_rewrite.so
+
+# ============================================
+# 2. KONFIGURASI DIRECTORY
+# ============================================
+# Cari bagian <Directory> yang sesuai dengan folder web Anda
+# dan pastikan AllowOverride bernilai All
+
+# Contoh untuk XAMPP:
+<Directory "C:/xampp/htdocs">
+    Options Indexes FollowSymLinks Includes ExecCGI
+    AllowOverride All
+    Require all granted
+</Directory>
+
+# Contoh untuk WAMP:
+<Directory "C:/wamp/www">
+    Options Indexes FollowSymLinks
+    AllowOverride All
+    Require all granted
+</Directory>
+
+# Contoh untuk Linux:
+<Directory /var/www/html>
+    Options Indexes FollowSymLinks
+    AllowOverride All
+    Require all granted
+</Directory>
+
+# ============================================
+# 3. VIRTUAL HOST (OPTIONAL - untuk domain kustom)
+# ============================================
+# Jika ingin menggunakan domain kustom seperti siraga.local
+
+<VirtualHost *:80>
+    ServerName siraga.local
+    DocumentRoot "C:/xampp/htdocs/siraga"
+    
+    <Directory "C:/xampp/htdocs/siraga">
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+    
+    ErrorLog "logs/siraga-error.log"
+    CustomLog "logs/siraga-access.log" common
+</VirtualHost>
+
+# Jangan lupa tambahkan di file hosts:
+# Windows: C:\Windows\System32\drivers\etc\hosts
+# Linux: /etc/hosts
+#
+# 127.0.0.1    siraga.local
+
+# ============================================
+# 4. PHP SETTINGS (OPTIONAL)
+# ============================================
+# Konfigurasi PHP untuk development
+
+<IfModule php7_module>
+    php_value max_execution_time 300
+    php_value max_input_time 300
+    php_value memory_limit 256M
+    php_value upload_max_filesize 10M
+    php_value post_max_size 10M
+    php_flag display_errors on
+    php_value error_reporting E_ALL
+</IfModule>
+
+# ============================================
+# LANGKAH-LANGKAH INSTALASI
+# ============================================
+#
+# 1. Buka httpd.conf dengan text editor (sebagai Administrator/root)
+#
+# 2. Uncomment baris LoadModule rewrite_module:
+#    LoadModule rewrite_module modules/mod_rewrite.so
+#
+# 3. Cari <Directory> untuk htdocs/www Anda
+#    Ubah: AllowOverride None
+#    Menjadi: AllowOverride All
+#
+# 4. Save file httpd.conf
+#
+# 5. Restart Apache dari XAMPP/WAMP Control Panel
+#
+# 6. Test dengan mengakses:
+#    http://localhost/siraga/test.php
+#
+# ============================================
+
+# ============================================
+# VERIFIKASI KONFIGURASI
+# ============================================
+#
+# Setelah restart Apache, test apakah mod_rewrite aktif:
+#
+# 1. Buat file info.php:
+#    <?php phpinfo(); ?>
+#
+# 2. Akses: http://localhost/info.php
+#
+# 3. Cari "Loaded Modules" atau "apache2handler"
+#    Pastikan ada "mod_rewrite"
+#
+# ============================================
+
+# ============================================
+# TROUBLESHOOTING
+# ============================================
+#
+# Jika Apache tidak mau start setelah edit:
+# 1. Check syntax: httpd -t
+# 2. Lihat error log: logs/error.log
+# 3. Pastikan tidak ada typo
+# 4. Restore backup httpd.conf jika perlu
+#
+# ============================================

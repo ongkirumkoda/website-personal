@@ -1,83 +1,129 @@
 <?php
 /**
- * SIRAGA - Sistem Pencatatan Tumbuh Kembang Anak
- * Application Entry Point
+ * SIRAGA - Sistema Pencatatan Tumbuh Kembang Anak
+ * Front Controller / Entry Point
  * 
- * @package SIRAGA
- * @version 1.0.0
+ * @package    SIRAGA
+ * @version    1.0.1 (Fixed)
+ * @author     SIRAGA Dev Team
  */
 
-// Start session
-session_start();
+// ==============================================
+// Error Reporting (Development)
+// ==============================================
 
-// Define root path
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// ==============================================
+// Define Paths
+// ==============================================
+
 define('ROOT_PATH', __DIR__);
 define('APP_PATH', ROOT_PATH . '/app');
-define('PUBLIC_PATH', ROOT_PATH . '/public');
-define('STORAGE_PATH', ROOT_PATH . '/storage');
 define('CONFIG_PATH', ROOT_PATH . '/config');
+define('STORAGE_PATH', ROOT_PATH . '/storage');
+define('PUBLIC_PATH', ROOT_PATH . '/public');
 
-// Error reporting based on environment
-$env = getenv('APP_ENV') ?: 'development';
-if ($env === 'production') {
-    error_reporting(0);
-    ini_set('display_errors', 0);
-} else {
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
+// ==============================================
+// Load Composer Autoloader
+// ==============================================
+
+if (!file_exists(__DIR__ . '/vendor/autoload.php')) {
+    die('
+    <h1>Error: Dependencies Not Installed</h1>
+    <p>Please run: <code>composer install</code></p>
+    <p>Or download composer from: <a href="https://getcomposer.org">getcomposer.org</a></p>
+    ');
 }
 
-// Load environment variables
-require_once ROOT_PATH . '/config/env.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
-// Load core files
-require_once APP_PATH . '/core/Database.php';
-require_once APP_PATH . '/core/Router.php';
-require_once APP_PATH . '/core/Controller.php';
-require_once APP_PATH . '/core/Model.php';
-require_once APP_PATH . '/core/Middleware.php';
-require_once APP_PATH . '/core/Logger.php';
-require_once APP_PATH . '/helpers/functions.php';
+// ==============================================
+// Load Environment Variables
+// ==============================================
 
-// Autoload classes
-spl_autoload_register(function ($class) {
-    $paths = [
-        APP_PATH . '/models/',
-        APP_PATH . '/controllers/',
-        APP_PATH . '/middleware/',
-        APP_PATH . '/services/',
-    ];
+if (!file_exists(__DIR__ . '/.env')) {
+    die('
+    <h1>Error: .env File Not Found</h1>
+    <p>Please copy .env.example to .env and configure it</p>
+    <p><code>cp .env.example .env</code></p>
+    ');
+}
+
+// Simple .env loader
+$envFile = file(__DIR__ . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+foreach ($envFile as $line) {
+    if (strpos(trim($line), '#') === 0) continue;
+    if (strpos($line, '=') === false) continue;
     
-    foreach ($paths as $path) {
-        $file = $path . $class . '.php';
-        if (file_exists($file)) {
-            require_once $file;
-            return;
-        }
+    list($key, $value) = explode('=', $line, 2);
+    $key = trim($key);
+    $value = trim($value);
+    
+    if (!array_key_exists($key, $_ENV)) {
+        putenv("$key=$value");
+        $_ENV[$key] = $value;
+        $_SERVER[$key] = $value;
     }
-});
+}
 
-// Initialize router
-$router = new Router();
+// ==============================================
+// Set Timezone
+// ==============================================
 
-// Load routes
-require_once ROOT_PATH . '/routes/web.php';
-require_once ROOT_PATH . '/routes/api.php';
+date_default_timezone_set(getenv('TIMEZONE') ?: 'Asia/Jakarta');
 
-// Handle request
+// ==============================================
+// Session Start
+// ==============================================
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// ==============================================
+// Load Helper Functions
+// ==============================================
+
+if (file_exists(APP_PATH . '/helpers/functions.php')) {
+    require_once APP_PATH . '/helpers/functions.php';
+}
+
+// ==============================================
+// Load Routes
+// ==============================================
+
+if (!file_exists(ROOT_PATH . '/routes/web.php')) {
+    die('
+    <h1>Error: Routes File Not Found</h1>
+    <p>File <code>routes/web.php</code> is missing</p>
+    ');
+}
+
 try {
-    $router->dispatch();
-} catch (Exception $e) {
-    // Log error
-    Logger::error('Application Error: ' . $e->getMessage());
+    // Initialize Router
+    $router = new \Siraga\Core\Router();
     
-    // Show error page
-    if ($env === 'production') {
-        http_response_code(500);
-        require_once ROOT_PATH . '/app/views/errors/500.php';
-    } else {
+    // Load route definitions
+    require_once ROOT_PATH . '/routes/web.php';
+    
+    // Dispatch the request
+    $router->dispatch();
+    
+} catch (Exception $e) {
+    // Error handling
+    if (getenv('APP_DEBUG') === 'true') {
         echo '<h1>Application Error</h1>';
-        echo '<p>' . $e->getMessage() . '</p>';
+        echo '<p><strong>Message:</strong> ' . $e->getMessage() . '</p>';
+        echo '<p><strong>File:</strong> ' . $e->getFile() . '</p>';
+        echo '<p><strong>Line:</strong> ' . $e->getLine() . '</p>';
         echo '<pre>' . $e->getTraceAsString() . '</pre>';
+    } else {
+        echo '<h1>500 - Internal Server Error</h1>';
+        echo '<p>Something went wrong. Please contact the administrator.</p>';
     }
+    
+    // Log error
+    error_log($e->getMessage());
 }

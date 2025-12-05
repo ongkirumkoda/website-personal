@@ -1,75 +1,101 @@
-# Security Headers
-<IfModule mod_headers.c>
-    Header set X-Content-Type-Options "nosniff"
-    Header set X-Frame-Options "SAMEORIGIN"
-    Header set X-XSS-Protection "1; mode=block"
-    Header set Referrer-Policy "strict-origin-when-cross-origin"
-    Header set Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://accounts.google.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https: blob:; connect-src 'self' https://accounts.google.com https://www.googleapis.com;"
+# ==============================================
+# SIRAGA .htaccess Configuration
+# ==============================================
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Set base directory
+    # PENTING: Sesuaikan dengan lokasi folder Anda
+    # Jika di http://localhost/siraga/ gunakan: RewriteBase /siraga/
+    # Jika di http://localhost/ gunakan: RewriteBase /
+    RewriteBase /siraga/
+    
+    # Jika file atau direktori ada, jangan redirect
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # Redirect semua request ke index.php
+    RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
 </IfModule>
 
-# Disable Directory Browsing
-Options -Indexes
+# ==============================================
+# Security Settings
+# ==============================================
 
-# Prevent Access to Sensitive Files
+# Proteksi .env file
+<Files .env>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Proteksi .htaccess
+<Files .htaccess>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Proteksi file config
 <FilesMatch "^\.">
     Order allow,deny
     Deny from all
 </FilesMatch>
 
-<FilesMatch "\.env$">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
+# ==============================================
+# PHP Settings (Development Mode)
+# ==============================================
 
-<FilesMatch "\.(log|sql|bak|old)$">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
+php_flag display_errors on
+php_value error_reporting E_ALL
+php_value max_execution_time 300
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
 
-# Enable Rewrite Engine
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /
-    
-    # Redirect to HTTPS (uncomment in production)
-    # RewriteCond %{HTTPS} off
-    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-    
-    # Remove trailing slashes
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} (.+)/$
-    RewriteRule ^ %1 [L,R=301]
-    
-    # Route all requests to index.php
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php [QSA,L]
-</IfModule>
+# ==============================================
+# Character Encoding
+# ==============================================
 
-# PHP Configuration
-<IfModule mod_php.c>
-    php_value upload_max_filesize 5M
-    php_value post_max_size 6M
-    php_value max_execution_time 300
-    php_value max_input_time 300
-    php_flag display_errors Off
-    php_flag log_errors On
-    php_value error_log logs/php_errors.log
-</IfModule>
+AddDefaultCharset UTF-8
 
+# ==============================================
 # Compression
+# ==============================================
+
 <IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
 </IfModule>
 
-# Browser Caching
-<IfModule mod_expires.c>
-    ExpiresActive On
-    ExpiresByType image/jpg "access plus 1 year"
-    ExpiresByType image/jpeg "access plus 1 year"
-    ExpiresByType image/png "access plus 1 year"
-    ExpiresByType image/gif "access plus 1 year"
-    ExpiresByType text/css "access plus 1 month"
-    ExpiresByType application/javascript "access plus 1 month"
-    ExpiresByType application/pdf "access plus 1 month"
+# ==============================================
+# Security Headers
+# ==============================================
+
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "no-referrer-when-downgrade"
 </IfModule>
+
+# ==============================================
+# MIME Types
+# ==============================================
+
+<IfModule mod_mime.c>
+    AddType application/javascript js
+    AddType text/css css
+</IfModule>
+
+# ==============================================
+# Error Pages (Optional)
+# ==============================================
+
+# ErrorDocument 404 /siraga/error/404
+# ErrorDocument 500 /siraga/error/500

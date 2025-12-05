@@ -1,0 +1,119 @@
+=====================================
+SIRAGA FIX - INSTALASI SINGKAT
+=====================================
+
+📦 YANG ANDA DOWNLOAD:
+- .htaccess (FIXED)
+- .env (FIXED) 
+- index.php (FIXED)
+- Router.php (FIXED)
+- test.php (untuk diagnostic)
+- Panduan lengkap
+
+=====================================
+⚡ LANGKAH CEPAT (5 MENIT)
+=====================================
+
+1. BACKUP FILE LAMA
+   - Backup .htaccess
+   - Backup .env
+   - Backup index.php
+   - Backup app/core/Router.php
+
+2. COPY FILE BARU
+   - siraga-fix/.htaccess → siraga/.htaccess
+   - siraga-fix/.env → siraga/.env
+   - siraga-fix/index.php → siraga/index.php
+   - siraga-fix/Router.php → siraga/app/core/Router.php
+   - siraga-fix/test.php → siraga/test.php
+
+3. EDIT KONFIGURASI
+   
+   A. Edit .htaccess, cari baris:
+      RewriteBase /siraga/
+      
+      Sesuaikan dengan folder Anda:
+      - Di http://localhost/siraga/ → /siraga/
+      - Di http://localhost/ → /
+   
+   B. Edit .env, cari baris:
+      APP_URL=http://localhost/siraga
+      BASE_PATH=/siraga
+      
+      Sesuaikan dengan folder Anda:
+      - Di http://localhost/siraga/ → BASE_PATH=/siraga
+      - Di http://localhost/ → BASE_PATH=/
+      
+      Juga sesuaikan database:
+      DB_NAME=siraga_db
+      DB_USER=root
+      DB_PASS=             ← Kosongkan jika XAMPP default
+
+4. AKTIFKAN mod_rewrite
+   
+   A. Buka: C:\xampp\apache\conf\httpd.conf
+   
+   B. Cari dan HAPUS tanda # di depan:
+      LoadModule rewrite_module modules/mod_rewrite.so
+   
+   C. Cari <Directory> dan ubah:
+      AllowOverride None  →  AllowOverride All
+   
+   D. Save dan RESTART Apache dari XAMPP
+
+5. TEST SISTEM
+   
+   Buka browser:
+   http://localhost/siraga/test.php
+   
+   Pastikan semua ✅ hijau
+
+6. AKSES WEBSITE
+   
+   http://localhost/siraga/
+   
+   Jika muncul homepage → BERHASIL! 🎉
+
+=====================================
+🔧 JIKA MASIH ERROR 404
+=====================================
+
+1. Clear browser cache (Ctrl+F5)
+2. Buka di Incognito Mode
+3. Cek test.php apakah mod_rewrite aktif
+4. Pastikan RewriteBase di .htaccess BENAR
+5. Pastikan BASE_PATH di .env BENAR
+6. Restart Apache lagi
+
+=====================================
+📖 PANDUAN LENGKAP
+=====================================
+
+Baca file-file ini untuk detail:
+- README.md → Overview & quick start
+- CARA_INSTALL.md → Panduan lengkap
+- httpd.conf.example → Contoh config Apache
+
+=====================================
+✅ CHECKLIST SUKSES
+=====================================
+
+Setelah install, test ini:
+☐ http://localhost/siraga/
+☐ http://localhost/siraga/auth/login
+☐ http://localhost/siraga/auth/register
+☐ http://localhost/siraga/dashboard
+☐ test.php menunjukkan semua ✅
+
+=====================================
+📞 MASIH BERMASALAH?
+=====================================
+
+Siapkan informasi:
+1. Screenshot test.php
+2. Error message
+3. Lokasi folder (misal: C:\xampp\htdocs\siraga)
+
+=====================================
+
+Good luck! 🚀
